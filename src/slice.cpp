@@ -2,6 +2,11 @@
 
 #include <iostream>
 
+typedef struct {
+    Vector3f p1;
+    Vector3f p2;
+} line;
+
 // assign faces to layer buckets. this modifies the levelset vector in-place.
 void bucket_faces(mesh &m, bounds &b, float layer_height, vector<levelset> &layers) {
     for (auto iter = m.faces.begin(); iter != m.faces.end(); iter++) {
@@ -30,6 +35,69 @@ void bucket_faces(mesh &m, bounds &b, float layer_height, vector<levelset> &laye
                 // we're out of our good range, break
                 break;
             }
+        }
+    }
+}
+
+void find_line_segments(levelset &ls, vector<line> &lines, vector<face*> inplane) {
+    for (auto iter = ls.faces.begin(); iter != ls.faces.end(); iter++) {
+        face* f = *iter;
+        if (f->sides() != 3) {
+            // TODO: triangularize!
+            cout << "got a nontriangular mesh and I'm a stupid slicer." << endl;
+            return;
+        }
+
+        vertex *v0 = f->e->vert;
+        // check for whole-tri-in-plane condition
+        bool is_inplane = true;
+        do {
+            if (v0->loc[2] != ls.z) {
+                is_inplane = false;
+                break;
+            }
+            v0 = v0->e->next->vert;
+        } while (v0 != f->e->vert);
+        if (is_inplane) {
+            inplane.push_back(f);
+            continue;
+        }
+
+        line l;
+        int points_found = 0;
+        v0 = f->e->vert;
+        do {
+            vertex *v = v0->e->next->vert;
+            float v_z = v->loc[2],
+                  v0_z = v0->loc[2];
+
+            if (v_z == v0_z) {
+                // check for edge-in-plane condition. since we know the whole
+                // tri /isn't/ in-plane from the check above, we know that this
+                // edge must be our levelset poly line segment
+                if (v_z == ls.z) {
+                    l.p1 = v0->loc;
+                    l.p2 = v->loc;
+                    break;
+                }
+                continue;
+            }
+
+            float n = (ls.z) / (v_z - v0_z);
+            if (0 <= n && n <= 1) {
+                Vector3f p = v0->loc + n * (v->loc - v0->loc);
+                if (++points_found == 1) {
+                    l.p1 = p;
+                } else {
+                    l.p2 = p;
+                }
+            }
+
+            v0 = v;
+        } while (v0 != f->e->vert);
+
+        if (points_found != 2) {
+            cout << "warning: face doesn't intersect z = " << ls.z << endl;
         }
     }
 }

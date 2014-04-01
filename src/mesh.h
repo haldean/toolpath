@@ -39,12 +39,14 @@ class vertex {
         int id;
         Vector3f loc;
         Vector3f normal;
+        // the edge that points to this vertex
         edge* e;
 };
 
 class edge {
     public:
         int id;
+        // the vertex that points to this edge
         vertex* vert;
         face* f;
         edge* next;
@@ -68,6 +70,7 @@ class face {
 
         int id;
         Vector3f normal;
+        // a random edge on this face.
         edge* e;
 };
 

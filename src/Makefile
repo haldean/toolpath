@@ -13,6 +13,10 @@ CFLAGS+=-DGL_GLEXT_PROTOTYPES
 LDFLAGS=-L/usr/local/lib -L/usr/X11/lib -lm -lglut -lGL -lGLU
 endif
 
+ifdef DEBUG
+CFLAGS+=-O0 -g -DDEBUG
+endif
+
 all: $(SOURCES) $(BINARY)
 	
 $(BINARY): $(OBJECTS) 
