@@ -199,25 +199,36 @@ void mesh::calculate_normals(normal_mode mode) {
     }
 }
 
-void mesh::scale_to_unit_cube() {
-    float minx = INFINITY, miny = INFINITY, minz = INFINITY,
-          maxx = -INFINITY, maxy = -INFINITY, maxz = -INFINITY;
+bounds mesh::get_bounds() {
+    bounds b;
+    b.min_x = INFINITY;
+    b.min_y = INFINITY;
+    b.min_z = INFINITY;
+    b.max_x = -INFINITY;
+    b.max_y = -INFINITY;
+    b.max_z = -INFINITY;
 
     for (auto vit = verteces.begin(); vit != verteces.end(); vit++) {
         Vector3f loc = (*vit)->loc;
-        if (loc[0] < minx) minx = loc[0];
-        if (loc[0] > maxx) maxx = loc[0];
-        if (loc[1] < miny) miny = loc[1];
-        if (loc[1] > maxy) maxy = loc[1];
-        if (loc[2] < minz) minz = loc[2];
-        if (loc[2] > maxz) maxz = loc[2];
+        if (loc[0] < b.min_x) b.min_x = loc[0];
+        if (loc[0] > b.max_x) b.max_x = loc[0];
+        if (loc[1] < b.min_y) b.min_y = loc[1];
+        if (loc[1] > b.max_y) b.max_y = loc[1];
+        if (loc[2] < b.min_z) b.min_z = loc[2];
+        if (loc[2] > b.max_z) b.max_z = loc[2];
     }
 
+    return b;
+}
+
+void mesh::scale_to_unit_cube() {
+    bounds b = get_bounds();
     Vector3f translate(
-            minx - (minx - maxx) / 2,
-            miny - (miny - maxy) / 2,
-            minz - (minz - maxz) / 2);
-    float scale = 1. / max(maxx - minx, max(maxy - miny, maxz - minz));
+            b.min_x - (b.min_x - b.max_x) / 2,
+            b.min_y - (b.min_y - b.max_y) / 2,
+            b.min_z - (b.min_z - b.max_z) / 2);
+    float scale = 1. / max(
+            b.max_x - b.min_x, max(b.max_y - b.min_y, b.max_z - b.min_z));
 
     for (auto vit = verteces.begin(); vit != verteces.end(); vit++) {
         (*vit)->loc -= translate;

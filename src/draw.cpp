@@ -1,12 +1,17 @@
 #include "draw.h"
 
 #include <sstream>
+#include <vector>
 
 #include "drawmesh.h"
 #include "glinclude.h"
 
-mesh *global_mesh;
+using namespace std;
+
+mesh global_mesh;
+vector<levelset> levelsets;
 drawopts opts;
+bounds mesh_bounds;
 
 GLfloat ambient[] = {0.2, 0.2, 0.2, 1.0};
 GLfloat position[] = {0.0, 0.0, 20.0, 1.0};
@@ -16,6 +21,8 @@ GLfloat mat_shininess[] = {50.0};
 
 GLfloat camRotX = 0;
 GLfloat camRotY = 0;
+
+int layer = -1;
 
 void change_size(int w, int h) {
     glViewport(0, 0, w, h);
@@ -37,6 +44,16 @@ void special_key(unsigned char key, int x, int y) {
         camRotY += 10.;
     } else if (key == 'd') {
         camRotY -= 10.;
+    } else if (key == 'n') {
+        layer++;
+        if (layer == levelsets.size()) {
+            layer = -1;
+        }
+    } else if (key == 'p') {
+        layer--;
+        if (layer == -2) {
+            layer = levelsets.size() - 1;
+        }
     }
 
     glutPostRedisplay();
@@ -49,18 +66,33 @@ void on_draw() {
         glRotatef(camRotX, 1, 0, 0);
         glRotatef(camRotY, 0, 1, 0);
 
-        draw_mesh(*global_mesh, opts);
+        if (layer == -1) {
+            draw_mesh(global_mesh, opts);
+        } else {
+            levelset ls = levelsets[layer];
+            draw_xy_plane(ls.z, mesh_bounds, opts);
+            draw_faces(ls.faces, opts);
+        }
     } glPopMatrix();
 
     ostringstream info;
-    info << global_mesh->faces.size() << " faces";
+    info << global_mesh.faces.size() << " faces, ";
+    info << levelsets.size() << " layers, ";
+    info << "showing ";
+    if (layer == -1) {
+        info << "all layers";
+    } else {
+        info << "layer " << layer;
+    }
     draw_string(info.str());
 
     glFlush();
 }
 
-void start_draw(int argc, char *argv[], mesh *m) {
+void start_draw(int argc, char *argv[], mesh &m, std::vector<levelset> &ls) {
     global_mesh = m;
+    levelsets = ls;
+    mesh_bounds = m.get_bounds();
 
     opts = default_draw_options();
 

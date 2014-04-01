@@ -1,6 +1,8 @@
 #ifndef __TP_DRAWMESH_H__
 #define __TP_DRAWMESH_H__
 
+#include <vector>
+
 #include "glinclude.h"
 #include "mesh.h"
 
@@ -20,5 +22,7 @@ drawopts default_draw_options();
 void draw_hull(mesh&, drawopts);
 void draw_mesh(mesh&, drawopts);
 void draw_string(string);
+void draw_xy_plane(float z, bounds&, drawopts);
+void draw_faces(vector<face*>, drawopts);
 
 #endif

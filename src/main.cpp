@@ -4,6 +4,8 @@
 #include "draw.h"
 #include "mesh.h"
 #include "objparse.h"
+#include "slice.h"
+#include "tooldef.h"
 
 int main(int argc, char *argv[]) {
     if (argc != 2) {
@@ -15,5 +17,10 @@ int main(int argc, char *argv[]) {
     load_obj(in, m);
     in.close();
 
-    start_draw(argc, argv, &m);
+    tooldef td;
+    td.r = .2;
+    td.z_accuracy = .5;
+    auto levelsets = slice(td, m);
+
+    start_draw(argc, argv, m, levelsets);
 }

@@ -20,6 +20,15 @@ enum normal_mode {
 typedef pair<int, int> vertpair;
 vertpair make_vertpair(int v1, int v2);
 
+typedef struct {
+    float max_x;
+    float max_y;
+    float max_z;
+    float min_x;
+    float min_y;
+    float min_z;
+} bounds;
+
 class vertex {
     public:
         vertex();
@@ -68,6 +77,7 @@ class mesh {
         mesh(const mesh &other);
         void calculate_normals(normal_mode mode);
         void scale_to_unit_cube();
+        bounds get_bounds();
 
         vector<vertex*> verteces;
         vector<edge*> edges;
