@@ -5,6 +5,7 @@
 
 #include "glinclude.h"
 #include "mesh.h"
+#include "slice.h"
 
 struct draw_options_struct {
   bool draw_edges;
@@ -24,5 +25,6 @@ void draw_mesh(mesh&, drawopts);
 void draw_string(string);
 void draw_xy_plane(float z, bounds&, drawopts);
 void draw_faces(vector<face*>, drawopts);
+void draw_linesegs(vector<lineseg>, drawopts);
 
 #endif

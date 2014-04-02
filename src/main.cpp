@@ -20,7 +20,10 @@ int main(int argc, char *argv[]) {
     tooldef td;
     td.r = .2;
     td.z_accuracy = .5;
-    auto levelsets = slice(td, m);
+
+    vector<levelset> levelsets;
+    slice(td, m, levelsets);
+    cout << "finished slicing, got " << levelsets.size() << " levelsets" << endl;
 
     start_draw(argc, argv, m, levelsets);
 }

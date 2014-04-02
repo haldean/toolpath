@@ -23,7 +23,7 @@ $(BINARY): $(OBJECTS)
 	$(CC) $(LDFLAGS) $(OBJECTS) -o $@
 
 .cpp.o:
-	$(CC) $(EXTRA_FLAGS) $(CFLAGS) $< -o $@
+	$(CC) $(CFLAGS) $< -o $@
 
 clean:
 	rm -f ${OBJECTS} ${BINARY}

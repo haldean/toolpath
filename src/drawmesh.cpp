@@ -182,6 +182,17 @@ void draw_xy_plane(float z, bounds &b, drawopts opts) {
     }
 }
 
+void draw_linesegs(vector<lineseg> lines, drawopts opts) {
+    glLineWidth(3.0);
+    glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, opts.hull_color);
+    for (auto line = lines.begin(); line != lines.end(); line++) {
+        glBegin(GL_LINE_STRIP); {
+            vector3_to_gl(line->p1);
+            vector3_to_gl(line->p2);
+        } glEnd();
+    }
+}
+
 drawopts default_draw_options() {
     drawopts opts;
     opts.draw_edges = true;
@@ -203,8 +214,10 @@ drawopts default_draw_options() {
     opts.mesh_color[2] = 1.;
     opts.mesh_color[3] = 1.;
 
-    for (int i=0; i<3; i++) opts.hull_color[i] = 0.;
-    opts.hull_color[3] = .3;
+    opts.hull_color[0] = 1.;
+    opts.hull_color[1] = .0;
+    opts.hull_color[2] = .0;
+    opts.hull_color[3] = 1.;
 
     return opts;
 }

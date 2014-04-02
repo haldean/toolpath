@@ -70,8 +70,12 @@ void on_draw() {
             draw_mesh(global_mesh, opts);
         } else {
             levelset ls = levelsets[layer];
-            draw_xy_plane(ls.z, mesh_bounds, opts);
             draw_faces(ls.faces, opts);
+            if (ls.lines.size() > 0) {
+                draw_linesegs(ls.lines, opts);
+            } else {
+                draw_xy_plane(ls.z, mesh_bounds, opts);
+            }
         }
     } glPopMatrix();
 
@@ -83,6 +87,7 @@ void on_draw() {
         info << "all layers";
     } else {
         info << "layer " << layer;
+        info << ", z = " << levelsets[layer].z;
     }
     draw_string(info.str());
 

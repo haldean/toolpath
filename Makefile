@@ -1,11 +1,11 @@
 EXECUTABLE=tp
 
 all:
-	make -C src
+	$(MAKE) -C src
 	cp src/$(EXECUTABLE) .
 
 clean:
-	make -C src clean
+	$(MAKE) -C src clean
 	rm $(EXECUTABLE)
 
 run: all
