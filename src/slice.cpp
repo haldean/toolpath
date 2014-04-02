@@ -3,6 +3,89 @@
 #include <cstdio>
 #include <iostream>
 
+#define OUT_OF_PLANE (0)
+#define POINT_IN_PLANE (1)
+#define FACE_IN_PLANE (2)
+
+int inplane_status(float z, face* f) {
+    edge *e0 = f->e;
+    // check for in-plane conditions
+    int verts_inplane = 0;
+    int verts_above = 0;
+    int verts_below = 0;
+
+    do {
+        vertex *v = e0->vert;
+        if (v->loc[2] == z) {
+            verts_inplane++;
+        } else if (v->loc[2] > z) {
+            verts_above++;
+        } else {
+            verts_below++;
+        }
+        e0 = e0->next;
+    } while (e0 != f->e);
+
+    // check for whole-tri-in-plane
+    if (verts_above == 0 && verts_below == 0) {
+        return FACE_IN_PLANE;
+
+    }
+    // check for single-point-in-plane
+    if (verts_inplane == 1 && (verts_above == 0 || verts_below == 0)) {
+        return POINT_IN_PLANE;
+    }
+    return OUT_OF_PLANE;
+}
+
+// returns a zero-length line segment if face does not intersect plane
+lineseg isect_tri_xy_plane(float z, face* f) {
+    lineseg l;
+
+    if (f->sides() != 3) {
+        // TODO: triangularize!
+        cout << "got a nontriangular mesh and I'm a stupid slicer." << endl;
+        return l;
+    }
+
+    int points_found = 0;
+    edge *e0 = f->e;
+    do {
+        // do this at the start so we can use continue within the loop
+        e0 = e0->next;
+
+        vertex *v = e0->next->vert,
+               *v0 = e0->vert;
+        float v_z = v->loc[2],
+              v0_z = v0->loc[2];
+
+        if (v_z == v0_z) {
+            // check for edge-in-plane condition. since we know the whole
+            // tri /isn't/ in-plane from the check above, we know that this
+            // edge must be our levelset poly line segment
+            if (v_z == z) {
+                l.p1 = v0->loc;
+                l.p2 = v->loc;
+                points_found = 2;
+                break;
+            }
+            continue;
+        }
+
+        float n = (v_z - z) / (v_z - v0_z);
+        if (0 <= n && n <= 1) {
+            Vector3f p = v0->loc + n * (v->loc - v0->loc);
+            if (++points_found == 1) {
+                l.p1 = p;
+            } else {
+                l.p2 = p;
+            }
+        }
+    } while (e0 != f->e);
+
+    return l;
+}
+
 // assign faces to layer buckets. this modifies the levelset vector in-place.
 void bucket_faces(mesh &m, bounds &b, float layer_height, vector<levelset> &layers) {
     for (auto iter = m.faces.begin(); iter != m.faces.end(); iter++) {
@@ -38,80 +121,18 @@ void bucket_faces(mesh &m, bounds &b, float layer_height, vector<levelset> &laye
 void find_line_segments(levelset &ls) {
     for (auto iter = ls.faces.begin(); iter != ls.faces.end(); iter++) {
         face* f = *iter;
-        if (f->sides() != 3) {
-            // TODO: triangularize!
-            cout << "got a nontriangular mesh and I'm a stupid slicer." << endl;
-            return;
-        }
+        int inplane = inplane_status(ls.z, f);
 
-        edge *e0 = f->e;
-        // check for in-plane conditions
-        int verts_inplane = 0;
-        int verts_above = 0;
-        int verts_below = 0;
-        do {
-            vertex *v = e0->vert;
-            if (v->loc[2] == ls.z) {
-                verts_inplane++;
-            } else if (v->loc[2] > ls.z) {
-                verts_above++;
-            } else {
-                verts_below++;
-            }
-            e0 = e0->next;
-        } while (e0 != f->e);
-
-        // check for whole-tri-in-plane
-        if (verts_inplane == 3) {
+        if (inplane == FACE_IN_PLANE) {
             ls.inplane.push_back(f);
             continue;
-        }
-        // check for single-point-in-plane
-        if (verts_inplane == 1 && (verts_above == 0 || verts_below == 0)) {
-            // we don't need the zero-length line segment represented by this
-            // point to create this level set. just skip it.
+        } else if (inplane == POINT_IN_PLANE) {
             continue;
         }
 
-        lineseg l;
-        int points_found = 0;
-        e0 = f->e;
-        do {
-            // do this at the start so we can use continue within the loop
-            e0 = e0->next;
-
-            vertex *v = e0->next->vert,
-                   *v0 = e0->vert;
-            float v_z = v->loc[2],
-                  v0_z = v0->loc[2];
-
-            if (v_z == v0_z) {
-                // check for edge-in-plane condition. since we know the whole
-                // tri /isn't/ in-plane from the check above, we know that this
-                // edge must be our levelset poly line segment
-                if (v_z == ls.z) {
-                    l.p1 = v0->loc;
-                    l.p2 = v->loc;
-                    points_found = 2;
-                    break;
-                }
-                continue;
-            }
-
-            float n = (ls.z) / (v_z - v0_z);
-            if (0 <= n && n <= 1) {
-                Vector3f p = v0->loc + n * (v->loc - v0->loc);
-                if (++points_found == 1) {
-                    l.p1 = p;
-                } else {
-                    l.p2 = p;
-                }
-            }
-        } while (e0 != f->e);
-
-        if (points_found != 2) {
+        lineseg line = isect_tri_xy_plane(ls.z, f);
+        if ((line.p1 - line.p2).norm() == 0) {
             cout << "warning: face doesn't intersect z = " << ls.z << endl;
-            cout << "  found " << points_found << " point(s)" << endl;
             edge *e = f->e;
             do {
                 vertex *v = e->vert;
@@ -120,7 +141,7 @@ void find_line_segments(levelset &ls) {
                 e = e->next;
             } while (e != f->e);
         } else {
-            ls.lines.push_back(l);
+            ls.lines.push_back(line);
         }
     }
 }
