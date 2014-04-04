@@ -15,6 +15,8 @@ class lineseg {
         lineseg();
         lineseg(const lineseg &other);
 
+        friend ostream& operator<< (ostream &out, const lineseg &l);
+
         Vector3f p1;
         Vector3f p2;
 };

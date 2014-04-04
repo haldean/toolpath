@@ -73,9 +73,8 @@ void on_draw() {
             draw_faces(ls.faces, opts);
             if (ls.lines.size() > 0) {
                 draw_linesegs(ls.lines, opts);
-            } else {
-                draw_xy_plane(ls.z, mesh_bounds, opts);
             }
+            draw_xy_plane(ls.z, mesh_bounds, opts);
         }
     } glPopMatrix();
 

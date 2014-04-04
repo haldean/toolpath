@@ -178,6 +178,11 @@ levelset::levelset(const levelset &other) :
         z(other.z), faces(other.faces), lines(other.lines) {
 }
 
+ostream& operator<< (ostream &out, const lineseg &l) {
+    out << "(" << l.p1 << ", " << l.p2 << ")";
+    return out;
+}
+
 ostream& operator<< (ostream &out, const levelset &ls) {
     out << "[perimeter size = " << ls.perimeter.size()
         << " lines size " << ls.lines.size()

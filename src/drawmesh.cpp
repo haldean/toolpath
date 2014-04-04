@@ -160,13 +160,13 @@ void draw_xy_plane(float z, bounds &b, drawopts opts) {
     glLineWidth(1.0);
     glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, opts.normal_color);
 
-    float x_step = (b.max_x - b.min_x) / 20.;
-    float y_step = (b.max_y - b.min_y) / 20.;
-
     float xp_lim = b.max_x + 2;
     float xn_lim = b.min_x - 2;
     float yp_lim = b.max_y + 2;
     float yn_lim = b.min_y - 2;
+
+    float x_step = (xp_lim - xn_lim) / 20.;
+    float y_step = (yp_lim - yn_lim) / 20.;
 
     for (float x = b.min_x; x <= b.max_x; x += x_step) {
         glBegin(GL_LINE_STRIP); {
