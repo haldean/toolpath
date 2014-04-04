@@ -74,7 +74,7 @@ lineseg isect_tri_xy_plane(float z, face* f) {
 
         float n = (v_z - z) / (v_z - v0_z);
         if (0 <= n && n <= 1) {
-            Vector3f p = v0->loc + n * (v->loc - v0->loc);
+            Vector3f p = v->loc - n * (v->loc - v0->loc);
             if (++points_found == 1) {
                 l.p1 = p;
             } else {
