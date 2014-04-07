@@ -1,3 +1,4 @@
 tp
 *.o
 src/*.o
+slicetest
