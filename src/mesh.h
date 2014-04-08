@@ -80,7 +80,7 @@ class mesh {
         mesh(const mesh &other);
         void calculate_normals(normal_mode mode);
         void scale_to_unit_cube();
-        bounds get_bounds();
+        bounds get_bounds() const;
 
         vector<vertex*> verteces;
         vector<edge*> edges;

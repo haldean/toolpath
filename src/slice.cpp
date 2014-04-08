@@ -2,12 +2,22 @@
 
 #include <cstdio>
 #include <iostream>
+#include <map>
+#include <stdint.h>
+
+#include <Eigen/Sparse>
 
 #define OUT_OF_PLANE (0)
 #define POINT_IN_PLANE (1)
 #define FACE_IN_PLANE (2)
 
-int inplane_status(float z, face* f) {
+// returns FACE_IN_PLANE if the face is fully in-plane (all verteces lie in the
+// plane). returns POINT_IN_PLANE if the plane and face intersect at a single
+// point. returns OUT_OF_PLANE if neither property holds.
+//
+// this function should only be called on faces that either intersect the plane
+// or lie in it.
+int inplane_status(const float z, const face* f) {
     edge *e0 = f->e;
     // check for in-plane conditions
     int verts_inplane = 0;
@@ -38,8 +48,10 @@ int inplane_status(float z, face* f) {
     return OUT_OF_PLANE;
 }
 
+// returns the line segment across the face representing the line of
+// intersection between the xy-plane at height z and the provided face.
 // returns a zero-length line segment if face does not intersect plane
-lineseg isect_tri_xy_plane(float z, face* f) {
+lineseg isect_tri_xy_plane(const float z, const face* f) {
     lineseg l;
 
     if (f->sides() != 3) {
@@ -88,7 +100,9 @@ lineseg isect_tri_xy_plane(float z, face* f) {
 }
 
 // assign faces to layer buckets. this modifies the levelset vector in-place.
-void bucket_faces(mesh &m, bounds &b, float layer_height, vector<levelset> &layers) {
+void bucket_faces(
+        const mesh &m, const bounds &b,
+        const float layer_height, vector<levelset> &layers) {
     for (auto iter = m.faces.begin(); iter != m.faces.end(); iter++) {
         face* f = *iter;
 
@@ -119,6 +133,8 @@ void bucket_faces(mesh &m, bounds &b, float layer_height, vector<levelset> &laye
     }
 }
 
+// generates a list of line segments based on the intersection of the bucketed
+// faces and the xy-plane at height ls.z
 void find_line_segments(levelset &ls) {
     for (auto iter = ls.faces.begin(); iter != ls.faces.end(); iter++) {
         face* f = *iter;
@@ -147,7 +163,54 @@ void find_line_segments(levelset &ls) {
     }
 }
 
-void slice(tooldef td, mesh &m, vector<levelset> &levelsets) {
+// creates a vertex in the vert_ids map and in the verts list. returns the ID to
+// use for the next vertex (either next_id or next_id + 1)
+int create_vertex(
+        map<Vector3f, uint32_t> &vert_ids, Vector3f &loc,
+        vector<Vector3f> &verts, int next_id) {
+    if (vert_ids.find(loc) != vert_ids.end()) {
+        return next_id;
+    }
+    vert_ids.insert(pair<Vector3f, int>(loc, next_id));
+    verts.push_back(loc);
+    return next_id + 1;
+}
+
+// converts an unsorted list of line segments to a list of ordered lists of
+// verteces representing paths around the levelset.
+void linesegs_to_vert_list(levelset &ls) {
+    map<Vector3f, uint32_t> vert_ids;
+    vector<Vector3f> verts;
+    int next_id = 0;
+
+    // build vert list
+    for (auto iter = ls.lines.begin(); iter != ls.lines.end(); iter++) {
+        next_id = create_vertex(vert_ids, iter->p1, verts, next_id);
+        next_id = create_vertex(vert_ids, iter->p2, verts, next_id);
+    }
+    int n = verts.size();
+
+    // build adjacency
+    vector<Triplet<uint8_t>> adjacents;
+    for (auto iter = ls.lines.begin(); iter != ls.lines.end(); iter++) {
+        auto i1 = vert_ids.find(iter->p1);
+        if (i1 == vert_ids.end()) {
+            cout << "warning: after building vert list, vert " <<
+                iter->p1.transpose() << " is missing" << endl;
+        }
+        auto i2 = vert_ids.find(iter->p2);
+        if (i2 == vert_ids.end()) {
+            cout << "warning: after building vert list, vert " <<
+                iter->p2.transpose() << " is missing" << endl;
+        }
+        adjacents.push_back(*i1, *i2, 1);
+    }
+
+    SparseMatrix<uint8_t> adj(n, n);
+    adj.setFromTriplets(adjacents.start(), adjacents.end());
+}
+
+void slice(const tooldef td, const mesh &m, vector<levelset> &levelsets) {
     levelsets.clear();
 
     bounds b = m.get_bounds();
@@ -165,6 +228,7 @@ void slice(tooldef td, mesh &m, vector<levelset> &levelsets) {
 
     for (auto iter = levelsets.begin(); iter != levelsets.end(); iter++) {
         find_line_segments(*iter);
+        linesegs_to_vert_list(*iter);
     }
 }
 

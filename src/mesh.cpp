@@ -199,7 +199,7 @@ void mesh::calculate_normals(normal_mode mode) {
     }
 }
 
-bounds mesh::get_bounds() {
+bounds mesh::get_bounds() const {
     bounds b;
     b.min_x = INFINITY;
     b.min_y = INFINITY;

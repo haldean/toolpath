@@ -46,10 +46,12 @@ class levelset {
         vector<lineseg> lines;
 };
 
-int inplane_status(float z, face* f);
-lineseg isect_tri_xy_plane(float z, face* f);
-void bucket_faces(mesh &m, bounds &b, float layer_height, vector<levelset>&);
+int inplane_status(const float z, const face* f);
+lineseg isect_tri_xy_plane(const float z, const face* f);
+void bucket_faces(
+        const mesh &m, const bounds &b, const float layer_height,
+        const vector<levelset>&);
 void find_line_segments(levelset &ls);
-void slice(tooldef td, mesh &m, vector<levelset> &out);
+void slice(const tooldef td, const mesh &m, vector<levelset> &out);
 
 #endif
