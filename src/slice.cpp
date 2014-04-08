@@ -7,6 +7,20 @@
 
 #include <Eigen/Sparse>
 
+void debug_print_sparse(const SparseMatrix<uint8_t> &mat) {
+    for (int i = 0; i < mat.cols(); i++) {
+        cout << "\t" << i;
+    }
+    cout << endl;
+    for (int i = 0; i < mat.rows(); i++) {
+        cout << i << ":\t";
+        for (int j = 0; j < mat.cols(); j++) {
+            cout << (int) mat.coeff(i, j) << "\t";
+        }
+        cout << endl;
+    }
+}
+
 #define OUT_OF_PLANE (0)
 #define POINT_IN_PLANE (1)
 #define FACE_IN_PLANE (2)
@@ -166,12 +180,12 @@ void find_line_segments(levelset &ls) {
 // creates a vertex in the vert_ids map and in the verts list. returns the ID to
 // use for the next vertex (either next_id or next_id + 1)
 int create_vertex(
-        map<Vector3f, uint32_t> &vert_ids, Vector3f &loc,
-        vector<Vector3f> &verts, int next_id) {
+        map<Vector3f, uint32_t, vector_comparitor> &vert_ids,
+        Vector3f &loc, vector<Vector3f> &verts, int next_id) {
     if (vert_ids.find(loc) != vert_ids.end()) {
         return next_id;
     }
-    vert_ids.insert(pair<Vector3f, int>(loc, next_id));
+    vert_ids.insert(pair<Vector3f, uint32_t>(loc, next_id));
     verts.push_back(loc);
     return next_id + 1;
 }
@@ -179,7 +193,7 @@ int create_vertex(
 // converts an unsorted list of line segments to a list of ordered lists of
 // verteces representing paths around the levelset.
 void linesegs_to_vert_list(levelset &ls) {
-    map<Vector3f, uint32_t> vert_ids;
+    map<Vector3f, uint32_t, vector_comparitor> vert_ids;
     vector<Vector3f> verts;
     int next_id = 0;
 
@@ -191,6 +205,7 @@ void linesegs_to_vert_list(levelset &ls) {
     int n = verts.size();
 
     // build adjacency
+    // TODO: handle double-edges
     vector<Triplet<uint8_t>> adjacents;
     for (auto iter = ls.lines.begin(); iter != ls.lines.end(); iter++) {
         auto i1 = vert_ids.find(iter->p1);
@@ -203,11 +218,14 @@ void linesegs_to_vert_list(levelset &ls) {
             cout << "warning: after building vert list, vert " <<
                 iter->p2.transpose() << " is missing" << endl;
         }
-        adjacents.push_back(*i1, *i2, 1);
+        adjacents.push_back(Triplet<uint8_t>(i1->second, i2->second, 1));
+        adjacents.push_back(Triplet<uint8_t>(i2->second, i1->second, 1));
     }
 
     SparseMatrix<uint8_t> adj(n, n);
-    adj.setFromTriplets(adjacents.start(), adjacents.end());
+    adj.setFromTriplets(adjacents.begin(), adjacents.end());
+    cout << "adjacency for level " << ls.z << endl;
+    debug_print_sparse(adj);
 }
 
 void slice(const tooldef td, const mesh &m, vector<levelset> &levelsets) {

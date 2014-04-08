@@ -87,4 +87,22 @@ class mesh {
         vector<face*> faces;
 };
 
+class vector_comparitor {
+    public:
+        bool operator()(const Vector3f &v1, const Vector3f &v2) const {
+            if (v1[0] < v2[0]) {
+                return true;
+            } else if (v1[0] > v2[0]) {
+                return false;
+            } else if (v1[1] < v2[1]) {
+                return true;
+            } else if (v1[1] > v2[1]) {
+                return false;
+            } else if (v1[2] < v2[2]) {
+                return true;
+            }
+            return false;
+        }
+};
+
 #endif
