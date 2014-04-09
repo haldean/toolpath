@@ -5,6 +5,16 @@
 #include "drawmesh.h"
 #include "glinclude.h"
 
+GLfloat color_cycle[][4] = {
+    { 1., 0., 0., 1. },
+    { 1., 1., 0., 1. },
+    { 0., 1., 0., 1. },
+    { 0., 1., 1., 1. },
+    { 0., 0., 1., 1. },
+    { 1., 0., 1., 1. }
+};
+int color_cycle_len = 6;
+
 void draw_string(string s) {
     glDisable(GL_LIGHTING);
 
@@ -189,6 +199,22 @@ void draw_linesegs(vector<lineseg> lines, drawopts opts) {
         glBegin(GL_LINE_STRIP); {
             vector3_to_gl(line->p1);
             vector3_to_gl(line->p2);
+        } glEnd();
+    }
+}
+
+void draw_perimeters(
+        vector<Vector3f> verts, vector<vector<uint32_t>> perimeters,
+        drawopts opts) {
+    glLineWidth(3.0);
+    int i = 0;
+    for (auto perim = perimeters.begin(); perim != perimeters.end(); perim++) {
+        glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, color_cycle[i]);
+        i = (i + 1) % color_cycle_len;
+        glBegin(GL_LINE_STRIP); {
+            for (auto vid = perim->begin(); vid != perim->end(); vid++) {
+                vector3_to_gl(verts[*vid]);
+            }
         } glEnd();
     }
 }

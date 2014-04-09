@@ -194,15 +194,14 @@ int create_vertex(
 // verteces representing paths around the levelset.
 void linesegs_to_vert_list(levelset &ls) {
     map<Vector3f, uint32_t, vector_comparitor> vert_ids;
-    vector<Vector3f> verts;
     int next_id = 0;
 
     // build vert list
     for (auto iter = ls.lines.begin(); iter != ls.lines.end(); iter++) {
-        next_id = create_vertex(vert_ids, iter->p1, verts, next_id);
-        next_id = create_vertex(vert_ids, iter->p2, verts, next_id);
+        next_id = create_vertex(vert_ids, iter->p1, ls.verteces, next_id);
+        next_id = create_vertex(vert_ids, iter->p2, ls.verteces, next_id);
     }
-    int n = verts.size();
+    int n = ls.verteces.size();
 
     // build adjacency
     // TODO: handle double-edges
@@ -224,8 +223,64 @@ void linesegs_to_vert_list(levelset &ls) {
 
     SparseMatrix<uint8_t> adj(n, n);
     adj.setFromTriplets(adjacents.begin(), adjacents.end());
+
     cout << "adjacency for level " << ls.z << endl;
     debug_print_sparse(adj);
+
+    cout << "verteces" << endl;
+    for (int i = 0; i < ls.verteces.size(); i++) {
+        cout << "  " << i << ":";
+        for (int j = 0; j < 3; j++) {
+            cout << "\t\t" << ls.verteces[i][j];
+        }
+        cout << endl;
+    }
+
+    int vert = -1;
+    vector<uint32_t> perimeter;
+    vector<vector<uint32_t>*> perimeters;
+
+    while (true) {
+        if (vert == -1) {
+            for (vert = 0; vert < adj.cols(); vert++) {
+                for (int i = 0; i < adj.rows(); i++) {
+                    if (adj.coeff(i, vert) > 0) {
+                        goto next_vert;
+                    }
+                }
+            }
+            goto exit;
+        } else {
+            int next = -1;
+            for (int r = 0; r < adj.rows(); r++) {
+                if (adj.coeff(vert, r) > 0) {
+                    adj.coeffRef(vert, r)--;
+                    adj.coeffRef(r, vert)--;
+                    next = r;
+                    break;
+                }
+            }
+            vert = next;
+        }
+next_vert:
+        if (vert != -1) {
+            perimeter.push_back(vert);
+        } else if (perimeter.size() > 0) {
+            ls.perimeters.push_back(perimeter);
+            perimeter.clear();
+        }
+    }
+exit:
+    for (auto perimeter = ls.perimeters.begin();
+            perimeter != ls.perimeters.end(); perimeter++) {
+        cout << "perimeter: ";
+        for (auto vertid = perimeter->begin();
+                vertid != perimeter->end(); vertid++) {
+            cout << *vertid << " ";
+        }
+        cout << endl;
+    }
+    return;
 }
 
 void slice(const tooldef td, const mesh &m, vector<levelset> &levelsets) {
@@ -257,9 +312,9 @@ lineseg::lineseg(const lineseg &other) : p1(other.p1), p2(other.p2) {}
 levelset::levelset() {}
 
 levelset::levelset(const levelset &other) :
-        perimeter(other.perimeter), edges(other.edges), inplane(other.inplane),
-        z(other.z), faces(other.faces), lines(other.lines) {
-}
+        verteces(other.verteces), perimeters(other.perimeters),
+        inplane(other.inplane), z(other.z), faces(other.faces),
+        lines(other.lines) {}
 
 ostream& operator<< (ostream &out, const lineseg &l) {
     out << "(" << l.p1.transpose() << ",\t" << l.p2.transpose() << ")";
@@ -267,7 +322,7 @@ ostream& operator<< (ostream &out, const lineseg &l) {
 }
 
 ostream& operator<< (ostream &out, const levelset &ls) {
-    out << "[perimeter size = " << ls.perimeter.size()
+    out << "[verteces = " << ls.verteces.size()
         << " lines size " << ls.lines.size()
         << "]";
     return out;

@@ -29,11 +29,10 @@ class levelset {
         friend ostream& operator<< (ostream &out, const levelset &ls);
 
         // verteces on the levelset polygon
-        vector<vertex*> perimeter;
-        // edges of the levelset polygon. note that, since this is a polygon with
-        // no adjacent polygons, none of the pair pointers on any of these edges
-        // will be initialized, and are probably garbage.
-        vector<edge*> edges;
+        vector<Vector3f> verteces;
+        // list of connected perimeters for the levelset. values are indeces
+        // into the perimeter array
+        vector<vector<uint32_t>> perimeters;
         // faces that are entirely in the plane of this levelset
         vector<face*> inplane;
         // the height of this levelset

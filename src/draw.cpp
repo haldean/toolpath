@@ -70,7 +70,9 @@ void on_draw() {
             draw_mesh(global_mesh, opts);
         } else {
             levelset ls = levelsets[layer];
-            if (ls.lines.size() > 0) {
+            if (ls.perimeters.size() > 0) {
+                draw_perimeters(ls.verteces, ls.perimeters, opts);
+            } else if (ls.lines.size() > 0) {
                 draw_linesegs(ls.lines, opts);
             } else {
                 draw_faces(ls.faces, opts);

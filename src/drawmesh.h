@@ -26,5 +26,6 @@ void draw_string(string);
 void draw_xy_plane(float z, bounds&, drawopts);
 void draw_faces(vector<face*>, drawopts);
 void draw_linesegs(vector<lineseg>, drawopts);
+void draw_perimeters(vector<Vector3f>, vector<vector<uint32_t>>, drawopts);
 
 #endif
