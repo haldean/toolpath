@@ -235,3 +235,28 @@ void mesh::scale_to_unit_cube() {
         (*vit)->loc *= scale;
     }
 }
+
+bool vector_comparitor::operator()(const Vector3f &v1, const Vector3f &v2) const {
+    float x_diff = v1[0] - v2[0];
+    if (x_diff < -CMP_EPSILON) {
+        return true;
+    } else if (x_diff > CMP_EPSILON) {
+        return false;
+    }
+
+    float y_diff = v1[1] - v2[1];
+    if (y_diff < -CMP_EPSILON) {
+        return true;
+    } else if (y_diff > CMP_EPSILON) {
+        return false;
+    }
+
+    float z_diff = v1[2] - v2[2];
+    if (z_diff < -CMP_EPSILON) {
+        return true;
+    } else if (z_diff > CMP_EPSILON) {
+        return false;
+    }
+
+    return false;
+}

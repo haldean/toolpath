@@ -5,7 +5,7 @@
 #include <vector>
 #include <iostream>
 
-#define CMP_EPSILON 1e-8
+#define CMP_EPSILON 1e-5
 
 using namespace Eigen;
 using namespace std;
@@ -91,30 +91,7 @@ class mesh {
 
 class vector_comparitor {
     public:
-        bool operator()(const Vector3f &v1, const Vector3f &v2) const {
-            float x_diff = v1[0] - v2[0];
-            if (x_diff < -CMP_EPSILON) {
-                return true;
-            } else if (x_diff > CMP_EPSILON) {
-                return false;
-            }
-
-            float y_diff = v1[1] - v2[1];
-            if (y_diff < -CMP_EPSILON) {
-                return true;
-            } else if (y_diff > CMP_EPSILON) {
-                return false;
-            }
-
-            float z_diff = v1[2] - v2[2];
-            if (z_diff < -CMP_EPSILON) {
-                return true;
-            } else if (z_diff > CMP_EPSILON) {
-                return false;
-            }
-
-            return false;
-        }
+        bool operator()(const Vector3f &v1, const Vector3f &v2) const;
 };
 
 #endif
