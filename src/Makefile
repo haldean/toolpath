@@ -1,6 +1,6 @@
 BINARY=tp
 TEST_BINARY=slicetest
-CFLAGS=-c -Wall -I../include/ --std=c++0x -I/usr/include/GL -I/usr/include -O2
+CFLAGS=-c -Wall -I../include/ --std=c++0x -I/usr/include/GL -I/usr/include -O2 -fvisibility=hidden
 SOURCES=$(wildcard *.cpp)
 OBJECTS=$(SOURCES:.cpp=.o)
 UNAME=$(shell uname)

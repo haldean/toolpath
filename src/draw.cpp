@@ -21,6 +21,7 @@ GLfloat mat_shininess[] = {50.0};
 
 GLfloat camRotX = 0;
 GLfloat camRotY = 0;
+GLfloat camDistance = 40.f;
 
 int layer = -1;
 
@@ -44,6 +45,10 @@ void special_key(unsigned char key, int x, int y) {
         camRotY += 10.;
     } else if (key == 'd') {
         camRotY -= 10.;
+    } else if (key == 'q') {
+        camDistance += 2.;
+    } else if (key == 'e') {
+        camDistance -= 2.;
     } else if (key == 'n') {
         layer++;
         if (layer == levelsets.size()) {
@@ -62,7 +67,7 @@ void special_key(unsigned char key, int x, int y) {
 void on_draw() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glPushMatrix();	{
-        glTranslatef(0, 0, -40.f);
+        glTranslatef(0, 0, -camDistance);
         glRotatef(camRotX, 1, 0, 0);
         glRotatef(camRotY, 0, 1, 0);
 

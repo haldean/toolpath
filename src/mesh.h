@@ -5,7 +5,7 @@
 #include <vector>
 #include <iostream>
 
-#define CMP_EPSILON 1e-5
+#define CMP_EPSILON 1e-8
 
 using namespace Eigen;
 using namespace std;
