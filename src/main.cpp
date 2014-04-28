@@ -18,16 +18,20 @@ int main(int argc, char *argv[]) {
     mesh m;
     ifstream in(argv[1]);
     const char *ext = &argv[1][strlen(argv[1]) - 3];
+    bool good;
     if (strncmp(ext, "stl", 3) == 0) {
-        load_stl(in, m);
+        good = load_stl(in, m);
     } else if (strncmp(ext, "obj", 3) == 0) {
-        load_obj(in, m);
+        good = load_obj(in, m);
     } else {
         std::cout << "don't know how to handle extension " << ext << std::endl;
         in.close();
         return 2;
     }
     in.close();
+    if (!good) {
+        return 3;
+    }
 
     tooldef td;
     td.r = .2;

@@ -11,7 +11,7 @@ CFLAGS+=-arch x86_64
 LDFLAGS=-lm -framework OpenGL -framework GLUT
 else
 CFLAGS+=-DGL_GLEXT_PROTOTYPES
-LDFLAGS=-L/usr/local/lib -L/usr/X11/lib -lm -lglut -lGL -lGLU
+LDFLAGS=-L/usr/local/lib -L/usr/X11/lib -lm -lglut -lGL -lGLU -lre2
 endif
 
 ifdef DEBUG
@@ -22,8 +22,8 @@ TEST_OBJS=$(filter-out main.o, $(OBJECTS))
 MAIN_OBJS=$(filter-out slicetest.o, $(OBJECTS))
 
 all: $(SOURCES) $(BINARY)
-	
-$(BINARY): $(MAIN_OBJS) 
+
+$(BINARY): $(MAIN_OBJS)
 	$(CC) $(LDFLAGS) $(MAIN_OBJS) -o $@
 
 .cpp.o:

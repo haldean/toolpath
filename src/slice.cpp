@@ -224,18 +224,6 @@ void linesegs_to_vert_list(levelset &ls) {
     SparseMatrix<uint8_t> adj(n, n);
     adj.setFromTriplets(adjacents.begin(), adjacents.end());
 
-    cout << "adjacency for level " << ls.z << endl;
-    debug_print_sparse(adj);
-
-    cout << "verteces" << endl;
-    for (int i = 0; i < ls.verteces.size(); i++) {
-        cout << "  " << i << ":";
-        for (int j = 0; j < 3; j++) {
-            cout << "\t\t" << ls.verteces[i][j];
-        }
-        cout << endl;
-    }
-
     int vert = -1;
     vector<uint32_t> perimeter;
     vector<vector<uint32_t>*> perimeters;
@@ -271,15 +259,6 @@ next_vert:
         }
     }
 exit:
-    for (auto perimeter = ls.perimeters.begin();
-            perimeter != ls.perimeters.end(); perimeter++) {
-        cout << "perimeter: ";
-        for (auto vertid = perimeter->begin();
-                vertid != perimeter->end(); vertid++) {
-            cout << *vertid << " ";
-        }
-        cout << endl;
-    }
     return;
 }
 

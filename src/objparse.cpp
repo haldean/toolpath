@@ -110,7 +110,12 @@ void obj_add_triangle(mesh &objm, vector<unsigned int> vids) {
     objm.faces.push_back(f);
 }
 
-void load_obj(istream& file, mesh &mesh) {
+bool load_obj(istream& file, mesh &mesh) {
+    if (!file.good()) {
+        cout << "Could not read file." << endl;
+        return false;
+    }
+
     string line;
     while (file.good()) {
         getline(file, line);
@@ -126,5 +131,6 @@ void load_obj(istream& file, mesh &mesh) {
         << "  " << mesh.verteces.size() << " verteces." << endl
         << "  " << mesh.edges.size() << " edges." << endl
         << "  " << objfaces.size() << " faces in OBJ file." << endl;
+    return true;
 }
 
