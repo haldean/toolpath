@@ -1,5 +1,5 @@
-toolpath will one day generate toolpaths.
-==
+one day, toolpath will generate toolpaths.
+--
 
 For now, though, toolpath slices a model into slices of configurable height and
 visualizes the perimeters of the slices. Run it with:
