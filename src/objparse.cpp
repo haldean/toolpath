@@ -3,15 +3,15 @@
 #include <cstdio>
 #include <iterator>
 #include <vector>
-#include <map>
 #include <iostream>
 
 #include <Eigen/Dense>
 
 #include "parse_common.h"
 
-using namespace std;
 using namespace Eigen;
+using std::string;
+using std::vector;
 
 struct objface {
     unsigned int id;
@@ -39,11 +39,11 @@ void obj_parse_line(mesh &objm, string line) {
 
         objm.verteces.push_back(v);
     } else if (line[0] == 'f' && line[1] == ' ') {
-        istringstream tokenizer(line);
+        std::istringstream tokenizer(line);
         vector<string> tokens;
-        copy(istream_iterator<string>(tokenizer),
-                istream_iterator<string>(),
-                back_inserter<vector<string> >(tokens));
+        copy(std::istream_iterator<string>(tokenizer),
+                std::istream_iterator<string>(),
+                std::back_inserter<vector<string> >(tokens));
 
         struct objface f;
         f.id = objfaces.size() + 1;
@@ -82,9 +82,9 @@ void obj_add_triangle(mesh &objm, vector<unsigned int> vids) {
     objm.faces.push_back(f);
 }
 
-bool load_obj(istream& file, mesh &mesh) {
+bool load_obj(std::istream& file, mesh &mesh) {
     if (!file.good()) {
-        cout << "Could not read file." << endl;
+        std::cout << "Could not read file." << std::endl;
         return false;
     }
 
@@ -99,10 +99,10 @@ bool load_obj(istream& file, mesh &mesh) {
     }
     merge_half_edges(mesh);
 
-    cout << "Loaded mesh: " << endl
-        << "  " << mesh.verteces.size() << " verteces." << endl
-        << "  " << mesh.edges.size() << " edges." << endl
-        << "  " << objfaces.size() << " faces in OBJ file." << endl;
+    std::cout << "Loaded mesh: " << std::endl
+        << "  " << mesh.verteces.size() << " verteces." << std::endl
+        << "  " << mesh.edges.size() << " edges." << std::endl
+        << "  " << objfaces.size() << " faces in OBJ file." << std::endl;
     return true;
 }
 

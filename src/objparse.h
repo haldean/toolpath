@@ -5,6 +5,6 @@
 
 #include "mesh.h"
 
-bool load_obj(istream& input, mesh& mesh);
+bool load_obj(std::istream& input, mesh& mesh);
 
 #endif

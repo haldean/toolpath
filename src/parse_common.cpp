@@ -2,7 +2,9 @@
 
 #include <map>
 
-using namespace std;
+using std::map;
+using std::pair;
+using std::vector;
 
 void merge_half_edges(mesh &mesh) {
     map<pair<unsigned int, unsigned int>, edge*> halfedges;

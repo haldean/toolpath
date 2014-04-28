@@ -22,10 +22,10 @@ struct draw_options_struct {
 drawopts default_draw_options();
 void draw_hull(mesh&, drawopts);
 void draw_mesh(mesh&, drawopts);
-void draw_string(string);
+void draw_string(std::string);
 void draw_xy_plane(float z, bounds&, drawopts);
-void draw_faces(vector<face*>, drawopts);
-void draw_linesegs(vector<lineseg>, drawopts);
-void draw_perimeters(vector<Vector3f>, vector<vector<uint32_t>>, drawopts);
+void draw_faces(std::vector<face*>, drawopts);
+void draw_linesegs(std::vector<lineseg>, drawopts);
+void draw_perimeters(std::vector<Vector3f>, std::vector<std::vector<uint32_t>>, drawopts);
 
 #endif

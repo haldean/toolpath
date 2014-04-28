@@ -6,10 +6,8 @@
 #include "drawmesh.h"
 #include "glinclude.h"
 
-using namespace std;
-
 mesh global_mesh;
-vector<levelset> levelsets;
+std::vector<levelset> levelsets;
 drawopts opts;
 bounds mesh_bounds;
 
@@ -86,7 +84,7 @@ void on_draw() {
         }
     } glPopMatrix();
 
-    ostringstream info;
+    std::ostringstream info;
     info << global_mesh.faces.size() << " faces, ";
     info << levelsets.size() << " layers, ";
     info << "showing ";

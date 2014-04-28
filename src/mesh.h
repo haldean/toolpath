@@ -8,7 +8,6 @@
 #define CMP_EPSILON 1e-5
 
 using namespace Eigen;
-using namespace std;
 
 class vertex;
 class edge;
@@ -19,7 +18,7 @@ enum normal_mode {
     AVERAGE
 };
 
-typedef pair<int, int> vertpair;
+typedef std::pair<int, int> vertpair;
 vertpair make_vertpair(int v1, int v2);
 
 typedef struct {
@@ -84,9 +83,9 @@ class mesh {
         void scale_to_unit_cube();
         bounds get_bounds() const;
 
-        vector<vertex*> verteces;
-        vector<edge*> edges;
-        vector<face*> faces;
+        std::vector<vertex*> verteces;
+        std::vector<edge*> edges;
+        std::vector<face*> faces;
 };
 
 class vector_comparitor {
