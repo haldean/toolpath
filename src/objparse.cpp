@@ -8,6 +8,8 @@
 
 #include <Eigen/Dense>
 
+#include "parse_common.h"
+
 using namespace std;
 using namespace Eigen;
 
@@ -54,36 +56,6 @@ void obj_parse_line(mesh &objm, string line) {
     }
 }
 
-// set the pair pointer on edges by finding their buddy.
-void obj_merge_half_edges(mesh &objm) {
-    map<pair<unsigned int, unsigned int>, edge*> halfedges;
-    for (vector<edge*>::const_iterator edge_iter = objm.edges.begin();
-            edge_iter != objm.edges.end(); edge_iter++) {
-        edge *e = *edge_iter;
-
-        int vid1 = e->vert->id;
-        edge *previous = e;
-        while (previous->next != e) previous = previous->next;
-        int vid2 = previous->vert->id;
-
-        pair<unsigned int, unsigned int> vids =
-            pair<unsigned int, unsigned int>(
-                    vid1 < vid2 ? vid1 : vid2, vid1 < vid2 ? vid2 : vid1);
-
-        map<pair<unsigned int, unsigned int>, edge*>::iterator
-            mapval = halfedges.find(vids);
-
-        if (mapval == halfedges.end()) {
-            halfedges.insert(
-                    pair<pair<unsigned int, unsigned int>, edge*>(vids, e));
-        } else {
-            edge *opposite = mapval->second;
-            e->pair = opposite;
-            opposite->pair = e;
-        }
-    }
-}
-
 void obj_add_triangle(mesh &objm, vector<unsigned int> vids) {
     face *f = new face();
     f->id = objm.faces.size() + 1;
@@ -125,7 +97,7 @@ bool load_obj(istream& file, mesh &mesh) {
     for (auto objf = objfaces.begin(); objf != objfaces.end(); objf++) {
         obj_add_triangle(mesh, objf->vids);
     }
-    obj_merge_half_edges(mesh);
+    merge_half_edges(mesh);
 
     cout << "Loaded mesh: " << endl
         << "  " << mesh.verteces.size() << " verteces." << endl
