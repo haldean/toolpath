@@ -6,9 +6,14 @@
 #include "drawmesh.h"
 #include "glinclude.h"
 
+#define ONLY_MESH 0x01
+#define ONLY_PATH 0x02
+#define MESH_AND_PATH (ONLY_MESH | ONLY_PATH)
+
 using namespace meshparse;
 
 mesh global_mesh;
+path global_path;
 std::vector<levelset> levelsets;
 drawopts opts;
 bounds mesh_bounds;
@@ -24,6 +29,7 @@ GLfloat camRotY = 0;
 GLfloat camDistance = 40.f;
 
 int layer = -1;
+int showPath = ONLY_MESH;
 
 void change_size(int w, int h) {
     glViewport(0, 0, w, h);
@@ -59,6 +65,11 @@ void special_key(unsigned char key, int x, int y) {
         if (layer == -2) {
             layer = levelsets.size() - 1;
         }
+    } else if (key == 't') {
+        showPath = showPath + 1;
+        if (showPath == 4) {
+            showPath = 1;
+        }
     }
 
     glutPostRedisplay();
@@ -71,17 +82,22 @@ void on_draw() {
         glRotatef(camRotX, 1, 0, 0);
         glRotatef(camRotY, 0, 1, 0);
 
-        if (layer == -1) {
-            draw_mesh(global_mesh, opts);
-        } else {
-            levelset ls = levelsets[layer];
-            if (ls.perimeters.size() > 0) {
-                draw_perimeters(ls.verteces, ls.perimeters, opts);
-            } else if (ls.lines.size() > 0) {
-                draw_linesegs(ls.lines, opts);
+        if (showPath & ONLY_PATH) {
+            draw_path(global_path, opts);
+        }
+        if (showPath & ONLY_MESH) {
+            if (layer == -1) {
+                draw_mesh(global_mesh, opts);
             } else {
-                draw_faces(ls.faces, opts);
-                draw_xy_plane(ls.z, mesh_bounds, opts);
+                levelset ls = levelsets[layer];
+                if (ls.perimeters.size() > 0) {
+                    draw_perimeters(ls.verteces, ls.perimeters, opts);
+                } else if (ls.lines.size() > 0) {
+                    draw_linesegs(ls.lines, opts);
+                } else {
+                    draw_faces(ls.faces, opts);
+                    draw_xy_plane(ls.z, mesh_bounds, opts);
+                }
             }
         }
     } glPopMatrix();
@@ -101,8 +117,10 @@ void on_draw() {
     glFlush();
 }
 
-void start_draw(int argc, char *argv[], mesh &m, std::vector<levelset> &ls) {
+void start_draw(
+        int argc, char *argv[], mesh &m, std::vector<levelset> &ls, path &p) {
     global_mesh = m;
+    global_path = p;
     levelsets = ls;
     mesh_bounds = m.get_bounds();
 

@@ -222,6 +222,16 @@ void draw_perimeters(
     }
 }
 
+void draw_path(path &p, drawopts opts) {
+    glLineWidth(3.0);
+    glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, color_cycle[0]);
+    glBegin(GL_LINE_STRIP); {
+        for (auto vec = p.points.begin(); vec != p.points.end(); vec++) {
+            vector3_to_gl(*vec);
+        }
+    } glEnd();
+}
+
 drawopts default_draw_options() {
     drawopts opts;
     opts.draw_edges = true;

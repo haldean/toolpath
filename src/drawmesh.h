@@ -6,6 +6,7 @@
 
 #include "glinclude.h"
 #include "slice.h"
+#include "path.h"
 
 using namespace meshparse;
 
@@ -29,5 +30,6 @@ void draw_xy_plane(float z, bounds&, drawopts);
 void draw_faces(std::vector<face*>, drawopts);
 void draw_linesegs(std::vector<lineseg>, drawopts);
 void draw_perimeters(std::vector<Vector3f>, std::vector<std::vector<uint32_t>>, drawopts);
+void draw_path(path&, drawopts);
 
 #endif

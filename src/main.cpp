@@ -5,6 +5,7 @@
 #include <meshparse/mesh.h>
 
 #include "draw.h"
+#include "path.h"
 #include "slice.h"
 #include "tooldef.h"
 
@@ -38,5 +39,7 @@ int main(int argc, char *argv[]) {
     slice(td, m, levelsets);
     cout << "finished slicing, got " << levelsets.size() << " levelsets" << endl;
 
-    start_draw(argc, argv, m, levelsets);
+    path p = generate_toolpath(levelsets, td);
+
+    start_draw(argc, argv, m, levelsets, p);
 }

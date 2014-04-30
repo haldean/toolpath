@@ -4,10 +4,11 @@
 #include <vector>
 #include <meshparse/mesh.h>
 
+#include "path.h"
 #include "slice.h"
 
 using namespace meshparse;
 
-void start_draw(int argc, char *argv[], mesh&, std::vector<levelset>&);
+void start_draw(int argc, char *argv[], mesh&, std::vector<levelset>&, path&);
 
 #endif
