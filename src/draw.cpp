@@ -12,9 +12,14 @@
 
 using namespace meshparse;
 
+using std::cout;
+using std::endl;
+using std::ostringstream;
+using std::vector;
+
 mesh global_mesh;
 path global_path;
-std::vector<levelset> levelsets;
+vector<levelset> levelsets;
 drawopts opts;
 bounds mesh_bounds;
 
@@ -24,12 +29,16 @@ GLfloat mat_diffuse[] = {0.6, 0.6, 0.6, 1.0};
 GLfloat mat_specular[] = {1.0, 1.0, 1.0, 1.0};
 GLfloat mat_shininess[] = {50.0};
 
-GLfloat camRotX = 0;
-GLfloat camRotY = 0;
-GLfloat camDistance = 40.f;
-
 int layer = -1;
 int showPath = ONLY_MESH;
+
+int lastX = -1;
+int lastY = -1;
+
+GLfloat camDistance = 40.f;
+GLfloat rotAroundZ;
+GLfloat rotAroundY;
+GLfloat rotSpeed = .01;
 
 void change_size(int w, int h) {
     glViewport(0, 0, w, h);
@@ -42,15 +51,31 @@ void change_size(int w, int h) {
     glMatrixMode(GL_MODELVIEW);
 }
 
+void on_press(int button, int state, int x, int y) {
+    if (state == GLUT_DOWN) {
+        lastX = x;
+        lastY = y;
+    } else {
+        lastX = -1;
+        lastY = -1;
+    }
+}
+
+void on_motion(int x, int y) {
+    rotAroundZ += rotSpeed * (x - lastX);
+    rotAroundY += rotSpeed * (y - lastY);
+    glutPostRedisplay();
+}
+
 void special_key(unsigned char key, int x, int y) {
     if (key == 'w') {
-        camRotX += 10.;
+        rotAroundY += 10.;
     } else if (key == 's') {
-        camRotX -= 10.;
+        rotAroundY -= 10.;
     } else if (key == 'a') {
-        camRotY += 10.;
+        rotAroundZ += 10.;
     } else if (key == 'd') {
-        camRotY -= 10.;
+        rotAroundZ -= 10.;
     } else if (key == 'q') {
         camDistance += 2.;
     } else if (key == 'e') {
@@ -77,10 +102,11 @@ void special_key(unsigned char key, int x, int y) {
 
 void on_draw() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
     glPushMatrix();	{
-        glTranslatef(0, 0, -camDistance);
-        glRotatef(camRotX, 1, 0, 0);
-        glRotatef(camRotY, 0, 1, 0);
+        gluLookAt(camDistance, 0, 0, 0, 0, 0, 0, 0, 1);
+        glRotatef(rotAroundZ, 0, 0, 1);
+        glRotatef(rotAroundY, 0, 1, 0);
 
         if (showPath & ONLY_PATH) {
             draw_path(global_path, opts);
@@ -102,7 +128,7 @@ void on_draw() {
         }
     } glPopMatrix();
 
-    std::ostringstream info;
+    ostringstream info;
     info << global_mesh.faces.size() << " faces, ";
     info << levelsets.size() << " layers, ";
     info << "showing ";
@@ -117,8 +143,7 @@ void on_draw() {
     glFlush();
 }
 
-void start_draw(
-        int argc, char *argv[], mesh &m, std::vector<levelset> &ls, path &p) {
+void start_draw(int argc, char *argv[], mesh &m, vector<levelset> &ls, path &p) {
     global_mesh = m;
     global_path = p;
     levelsets = ls;
@@ -151,5 +176,7 @@ void start_draw(
     glutDisplayFunc(on_draw);
     glutReshapeFunc(change_size);
     glutKeyboardFunc(special_key);
+    glutMouseFunc(on_press);
+    glutMotionFunc(on_motion);
     glutMainLoop();
 }
