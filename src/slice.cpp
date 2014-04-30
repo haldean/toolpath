@@ -7,6 +7,15 @@
 
 #include <Eigen/Sparse>
 
+using namespace Eigen;
+
+using std::cout;
+using std::endl;
+using std::map;
+using std::ostream;
+using std::pair;
+using std::vector;
+
 void debug_print_sparse(const SparseMatrix<uint8_t> &mat) {
     for (int i = 0; i < mat.cols(); i++) {
         cout << "\t" << i;

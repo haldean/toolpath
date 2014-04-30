@@ -2,12 +2,13 @@
 #define __TP_SLICE_H__
 
 #include <Eigen/Dense>
+#include <meshparse/mesh.h>
 #include <vector>
 
 #include "tooldef.h"
-#include "mesh.h"
 
 using namespace Eigen;
+using namespace meshparse;
 
 class lineseg {
     public:

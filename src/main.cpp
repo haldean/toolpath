@@ -2,36 +2,33 @@
 #include <iostream>
 #include <string.h>
 
+#include <meshparse/mesh.h>
+
 #include "draw.h"
-#include "mesh.h"
-#include "objparse.h"
 #include "slice.h"
-#include "stlparse.h"
 #include "tooldef.h"
+
+using namespace meshparse;
+
+using std::ifstream;
+using std::cout;
+using std::endl;
+using std::vector;
 
 int main(int argc, char *argv[]) {
     if (argc != 2) {
-        std::cout << "Usage: " << argv[0] << " [obj file]" << std::endl;
+        cout << "Usage: " << argv[0] << " [obj file]" << endl;
         return 1;
     }
 
     mesh m;
     ifstream in(argv[1]);
-    const char *ext = &argv[1][strlen(argv[1]) - 3];
-    bool good;
-    if (strncmp(ext, "stl", 3) == 0) {
-        good = load_stl(in, m);
-    } else if (strncmp(ext, "obj", 3) == 0) {
-        good = load_obj(in, m);
-    } else {
-        std::cout << "don't know how to handle extension " << ext << std::endl;
+    if (!load_mesh(argv[1], in, m)) {
+        cout << "Mesh loader couldn't read file." << endl;
         in.close();
-        return 2;
-    }
-    in.close();
-    if (!good) {
         return 3;
     }
+    in.close();
 
     tooldef td;
     td.r = .2;

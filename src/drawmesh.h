@@ -1,11 +1,13 @@
 #ifndef __TP_DRAWMESH_H__
 #define __TP_DRAWMESH_H__
 
+#include <meshparse/mesh.h>
 #include <vector>
 
 #include "glinclude.h"
-#include "mesh.h"
 #include "slice.h"
+
+using namespace meshparse;
 
 struct draw_options_struct {
   bool draw_edges;

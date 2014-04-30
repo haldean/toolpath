@@ -6,6 +6,8 @@
 #include "drawmesh.h"
 #include "glinclude.h"
 
+using namespace meshparse;
+
 mesh global_mesh;
 std::vector<levelset> levelsets;
 drawopts opts;

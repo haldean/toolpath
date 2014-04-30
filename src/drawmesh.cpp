@@ -5,6 +5,9 @@
 #include "drawmesh.h"
 #include "glinclude.h"
 
+using std::string;
+using std::vector;
+
 GLfloat color_cycle[][4] = {
     { 1., 0., 0., 1. },
     { 1., 1., 0., 1. },
