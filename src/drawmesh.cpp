@@ -223,7 +223,7 @@ void draw_perimeters(
 }
 
 void draw_path(path &p, drawopts opts) {
-    glLineWidth(3.0);
+    glLineWidth(2.0);
     glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, color_cycle[0]);
     glBegin(GL_LINE_STRIP); {
         for (auto vec = p.points.begin(); vec != p.points.end(); vec++) {

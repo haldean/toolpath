@@ -10,6 +10,10 @@
 #define ONLY_PATH 0x02
 #define MESH_AND_PATH (ONLY_MESH | ONLY_PATH)
 
+#define NO_MOUSE 0x01
+#define ROTATE 0x02
+#define ZOOM 0x03
+
 using namespace meshparse;
 
 using std::cout;
@@ -34,11 +38,13 @@ int showPath = ONLY_MESH;
 
 int lastX = -1;
 int lastY = -1;
+int mouseMode = NO_MOUSE;
 
 GLfloat camDistance = 40.f;
+GLfloat zoomSpeed = .5;
 GLfloat rotAroundZ;
 GLfloat rotAroundY;
-GLfloat rotSpeed = .01;
+GLfloat rotSpeed = .3;
 
 void change_size(int w, int h) {
     glViewport(0, 0, w, h);
@@ -46,12 +52,19 @@ void change_size(int w, int h) {
     glLoadIdentity();
 
     // Set the clipping volume
-    gluPerspective(45.0f, (GLfloat) w / (GLfloat) h, .001f, 100.0f);
+    gluPerspective(45.0f, (GLfloat) w / (GLfloat) h, .001f, 1000.0f);
 
     glMatrixMode(GL_MODELVIEW);
 }
 
 void on_press(int button, int state, int x, int y) {
+    if (button == GLUT_LEFT_BUTTON) {
+        mouseMode = ROTATE;
+    } else if (button == GLUT_RIGHT_BUTTON) {
+        mouseMode = ZOOM;
+    } else {
+        mouseMode = NO_MOUSE;
+    }
     if (state == GLUT_DOWN) {
         lastX = x;
         lastY = y;
@@ -62,8 +75,14 @@ void on_press(int button, int state, int x, int y) {
 }
 
 void on_motion(int x, int y) {
-    rotAroundZ += rotSpeed * (x - lastX);
-    rotAroundY += rotSpeed * (y - lastY);
+    if (mouseMode == ROTATE) {
+        rotAroundZ += rotSpeed * (x - lastX);
+        rotAroundY += rotSpeed * (y - lastY);
+    } else if (mouseMode == ZOOM) {
+        camDistance += zoomSpeed * (y - lastY);
+    }
+    lastX = x;
+    lastY = y;
     glutPostRedisplay();
 }
 
@@ -105,8 +124,8 @@ void on_draw() {
 
     glPushMatrix();	{
         gluLookAt(camDistance, 0, 0, 0, 0, 0, 0, 0, 1);
-        glRotatef(rotAroundZ, 0, 0, 1);
         glRotatef(rotAroundY, 0, 1, 0);
+        glRotatef(rotAroundZ, 0, 0, 1);
 
         if (showPath & ONLY_PATH) {
             draw_path(global_path, opts);
